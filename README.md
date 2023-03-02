@@ -5,8 +5,9 @@
 package main
 
 import (
+	"fmt"
 	in "github.com/SafronovRaff/In_memory_cache"
-  "time"
+	"time"
 )
 
 func main() {
