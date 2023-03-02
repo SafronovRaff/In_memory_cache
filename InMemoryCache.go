@@ -1,29 +1,50 @@
 package In_memory_cache
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
-type Cashe struct {
-	cashe map[string]interface{}
+// In Memory Cache - a structure containing the duration of the cache storage and the cache itself
+type InMemoryCashe struct {
+	expireIn time.Duration
+	cashe    map[string]CasheEntry
 }
 
-// Set - adds saves value by key
-func (c *Cashe) Set(key string, value interface{}) {
-	if len(c.cashe) == 0 {
-		c.cashe = make(map[string]interface{})
+// Cache Entry - contains the time of setting the value and the value itselfе
+type CasheEntry struct {
+	settledAt time.Time
+	value     interface{}
+}
+
+func New(expertIn time.Duration) *InMemoryCashe {
+	return &InMemoryCashe{
+		expireIn: expertIn,
+		cashe:    make(map[string]CasheEntry),
 	}
-	c.cashe[key] = value
+}
+
+// Set - adds the value of saving by key along with the current time
+func (c *InMemoryCashe) Set(key string, value interface{}) {
+	c.cashe[key] = CasheEntry{
+		settledAt: time.Now(),
+		value:     value,
+	}
 }
 
 // Get - returns the value by key
-func (c *Cashe) Get(key string) interface{} {
-	value, ok := c.cashe[key]
-	if !ok {
-		fmt.Println("Value not found")
+func (c *InMemoryCashe) Get(key string) interface{} {
+	entry, ok := c.cashe[key]
+	if ok && time.Since(entry.settledAt) <= c.expireIn {
+		return entry.value
 	}
-	return value
+	return fmt.Sprintf("The value has expired or it is not in the cache")
 }
 
 // Delete - delete the value by key
-func (c *Cashe) Delete(key string) {
-	delete(c.cashe, key)
+func (c *InMemoryCashe) Delete(key string) {
+	_, ok := c.cashe[key]
+	if ok {
+		delete(c.cashe, key)
+	}
 }
