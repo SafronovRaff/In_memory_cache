@@ -17,7 +17,8 @@ type CasheEntry struct {
 	value     interface{}
 }
 
-func New(expertIn time.Duration) *InMemoryCashe {
+// NewCash - creates cache storage and cache storage time
+func NewCash(expertIn time.Duration) *InMemoryCashe {
 	return &InMemoryCashe{
 		expireIn: expertIn,
 		cashe:    make(map[string]CasheEntry),
