@@ -1,5 +1,7 @@
 # In_memory_cache
 
+
+```
 package main
 
 import (
@@ -21,3 +23,4 @@ func main() {
 	// Delete - delete the value by key
 	cashe.Delete("userId-1")
   }
+  ```
