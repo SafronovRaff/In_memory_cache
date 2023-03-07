@@ -2,6 +2,7 @@ package In_memory_cache
 
 import (
 	"fmt"
+	"sync"
 	"time"
 )
 
@@ -9,6 +10,7 @@ import (
 type InMemoryCashe struct {
 	expireIn time.Duration
 	cashe    map[string]CasheEntry
+	mux      sync.Mutex
 }
 
 // Cache Entry - contains the time of setting the value and the value itselfе
@@ -27,6 +29,9 @@ func NewCash(expertIn time.Duration) *InMemoryCashe {
 
 // Set - adds the value of saving by key along with the current time
 func (c *InMemoryCashe) Set(key string, value interface{}) {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+
 	c.cashe[key] = CasheEntry{
 		settledAt: time.Now(),
 		value:     value,
@@ -35,6 +40,8 @@ func (c *InMemoryCashe) Set(key string, value interface{}) {
 
 // Get - returns the value by key
 func (c *InMemoryCashe) Get(key string) interface{} {
+	c.mux.Lock()
+	defer c.mux.Unlock()
 	entry, ok := c.cashe[key]
 	if ok && time.Since(entry.settledAt) <= c.expireIn {
 		return entry.value
@@ -44,6 +51,8 @@ func (c *InMemoryCashe) Get(key string) interface{} {
 
 // Delete - delete the value by key
 func (c *InMemoryCashe) Delete(key string) {
+	c.mux.Lock()
+	defer c.mux.Unlock()
 	_, ok := c.cashe[key]
 	if ok {
 		delete(c.cashe, key)
